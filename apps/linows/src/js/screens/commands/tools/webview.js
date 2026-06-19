@@ -1,4 +1,4 @@
-const BUILT_IN_BASE = 'vendor/it-tools/dist';
+const BUILT_IN_BASE = 'vendor/it-tools';
 
 function cleanBase(url) {
   return String(url || '').trim().replace(/\/+$/, '');
@@ -13,7 +13,8 @@ export function resolveToolUrl(tool, config = {}) {
     return `${selfHosted}${route}`;
   }
 
-  return `${BUILT_IN_BASE}/index.html#${route}`;
+  const lang = config.it_tools_lang || 'zh-CN';
+  return `${BUILT_IN_BASE}/bridge.html?lang=${encodeURIComponent(lang)}&route=${encodeURIComponent(route)}`;
 }
 
 export function renderWebTool(tool, config = {}) {

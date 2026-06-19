@@ -368,6 +368,10 @@ export function init(exitFn) {
     await saveConfig({ it_tools_self_hosted_url: e.target.value.trim() });
   });
 
+  document.getElementById('settings-it-tools-lang')?.addEventListener('change', async (e) => {
+    await saveConfig({ it_tools_lang: e.target.value });
+  });
+
   // Fresh config
   document.getElementById('settings-fresh-config').addEventListener('click', async () => {
     try {
@@ -836,6 +840,7 @@ async function loadConfig() {
     // it-tools
     document.getElementById('settings-it-tools-source').value = map.it_tools_web_source || 'built-in';
     document.getElementById('settings-it-tools-url').value = map.it_tools_self_hosted_url || '';
+    document.getElementById('settings-it-tools-lang').value = map.it_tools_lang || 'zh-CN';
   } catch (err) {
     console.error('Failed to load config:', err);
   }
