@@ -3,7 +3,8 @@ import * as pomo from './pomo.js';
 import * as kill from './kill.js';
 import * as shell from './shell.js';
 import * as sys from './sys.js';
-import { calculator, timer, xCircle, terminal, info } from '../../icons.js';
+import * as tools from './tools/index.js';
+import { calculator, timer, xCircle, terminal, info, toolbox } from '../../icons.js';
 
 const COMMANDS = [
   { id: 'calc', label: '/calc', shortcut: '1', detail: 'Evaluate math...', icon: calculator, module: calc },
@@ -11,6 +12,7 @@ const COMMANDS = [
   { id: 'kill', label: '/kill', shortcut: '3', detail: 'Force kill app...', icon: xCircle, module: kill },
   { id: 'shell', label: '/shell', shortcut: '4', detail: 'Run a shell co...', icon: terminal, module: shell },
   { id: 'sys', label: '/sys', shortcut: '5', detail: 'Show system in...', icon: info, module: sys },
+  { id: 'tools', label: '/tools', shortcut: '6', detail: 'Developer tools...', icon: toolbox, module: tools },
 ];
 
 let screen = null;
@@ -21,10 +23,23 @@ let mainSearchInput = null;
 let active = false;
 let selectedIndex = 0;
 let activeCommandId = 'calc';
+let pendingAlias = '';
 let onExit = null;
 let onCommandChange = null;
 
-export function init(contentAreaEl, inputEl, { onExitMode, onExecuteCommand, onGetIcon }) {
+const ALIAS_TO_COMMAND = {
+  json: { command: 'tools', alias: 'json' },
+  base64: { command: 'tools', alias: 'base64' },
+  url: { command: 'tools', alias: 'url' },
+  uuid: { command: 'tools', alias: 'uuid' },
+  timestamp: { command: 'tools', alias: 'timestamp' },
+  hash: { command: 'tools', alias: 'hash' },
+  jwt: { command: 'tools', alias: 'jwt' },
+  case: { command: 'tools', alias: 'case' },
+  random: { command: 'tools', alias: 'random' },
+};
+
+export function init(contentAreaEl, inputEl, { onExitMode, onExecuteCommand, onGetIcon, onGetConfig, onCopyText, onFeedback }) {
   contentArea = contentAreaEl;
   mainSearchInput = inputEl;
   onExit = onExitMode;
@@ -38,12 +53,18 @@ export function init(contentAreaEl, inputEl, { onExitMode, onExecuteCommand, onG
   kill.init(onExecuteCommand, onGetIcon);
   shell.init(onExecuteCommand);
   sys.init(onExecuteCommand);
+  tools.init({
+    getConfig: onGetConfig,
+    copy: onCopyText,
+    feedback: onFeedback,
+  });
 
   // Set header bar icons
   document.getElementById('cmd-calc-header-icon').innerHTML = calculator;
   document.getElementById('cmd-kill-header-icon').innerHTML = xCircle;
   document.getElementById('cmd-shell-header-icon').innerHTML = terminal;
   document.getElementById('cmd-sys-header-icon').innerHTML = info;
+  document.getElementById('cmd-tools-header-icon').innerHTML = toolbox;
 
   buildSidebar();
 }
@@ -63,6 +84,14 @@ export function enterById(cmdId) {
   return true;
 }
 
+export function enterAlias(alias) {
+  const target = ALIAS_TO_COMMAND[alias];
+  if (!target) return false;
+  pendingAlias = target.alias;
+  activeCommandId = target.command;
+  return true;
+}
+
 export function enter() {
   active = true;
   selectedIndex = COMMANDS.findIndex((c) => c.id === activeCommandId);
@@ -73,7 +102,9 @@ export function enter() {
   mainSearchInput.parentElement.style.display = 'none';
 
   updateSidebar();
-  currentModule().enter();
+  const alias = pendingAlias;
+  pendingAlias = '';
+  currentModule().enter(alias);
 }
 
 export function exit() {

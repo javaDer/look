@@ -38,6 +38,18 @@ const BANNER_DURATION_MEDIUM = 1.2;
 const BANNER_DURATION_LONG = 1.5;
 const KILL_FEEDBACK_DELAY_MS = 300;
 
+let latestConfigMap = {};
+
+async function refreshConfigMap() {
+  const cfg = await getConfig();
+  latestConfigMap = Object.fromEntries(cfg.entries.map((entry) => [entry.key, entry.value]));
+  return latestConfigMap;
+}
+
+function getConfigMapFromCache() {
+  return latestConfigMap;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   const app = document.getElementById('app');
 
@@ -68,6 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     load('html/screens/commands/kill.html', cmdMain),
     load('html/screens/commands/shell.html', cmdMain),
     load('html/screens/commands/sys.html', cmdMain),
+    load('html/screens/commands/tools.html', cmdMain),
   ]);
 
   // DOM refs
@@ -99,6 +112,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     onExitMode: exitCommandMode,
     onExecuteCommand: executeCommand,
     onGetIcon: getIcon,
+    onGetConfig: getConfigMapFromCache,
+    onCopyText: async (text) => copyToClipboard(text),
+    onFeedback: (message, isError) => banner.show(message, isError ? 'error' : 'success', BANNER_DURATION_SHORT),
   });
   translatePanel.init(contentArea);
   settings.init(() => {
@@ -117,6 +133,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     runningApps.setEnabled(on);
     if (on) runningApps.refresh();
   });
+  refreshConfigMap();
 
   // Show DEV badge when running in dev mode (cargo tauri dev)
   isDevBuild().then((isDev) => {
@@ -171,19 +188,38 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // :cmd prefix → jump into command mode (e.g. :calc 2+2, :kill chrome)
-  const CMD_PREFIX_MAP = { calc: 'calc', pomo: 'pomo', kill: 'kill', shell: 'shell', sys: 'sys' };
+  const CMD_PREFIX_MAP = {
+    calc: { command: 'calc' },
+    pomo: { command: 'pomo' },
+    kill: { command: 'kill' },
+    shell: { command: 'shell' },
+    sys: { command: 'sys' },
+    tools: { command: 'tools' },
+    json: { alias: 'json' },
+    base64: { alias: 'base64' },
+    url: { alias: 'url' },
+    uuid: { alias: 'uuid' },
+    timestamp: { alias: 'timestamp' },
+    hash: { alias: 'hash' },
+    jwt: { alias: 'jwt' },
+    case: { alias: 'case' },
+    random: { alias: 'random' },
+  };
 
   function tryCommandPrefix(value) {
     if (!value.startsWith(':')) return false;
     const rest = value.slice(1);
     const spaceIdx = rest.indexOf(' ');
     const cmdName = spaceIdx >= 0 ? rest.slice(0, spaceIdx) : rest;
-    const cmdId = CMD_PREFIX_MAP[cmdName.toLowerCase()];
-    if (!cmdId) return false;
-    const input = spaceIdx >= 0 ? rest.slice(spaceIdx + 1) : '';
-    commands.enterById(cmdId);
+    const target = CMD_PREFIX_MAP[cmdName.toLowerCase()];
+    if (!target) return false;
+    if (target.alias) {
+      commands.enterAlias(target.alias);
+    } else {
+      commands.enterById(target.command);
+    }
     enterCommandMode();
-    // Set the command input if there's text after the command name
+    const input = spaceIdx >= 0 ? rest.slice(spaceIdx + 1) : '';
     const cmdInput = document.getElementById('cmd-input');
     if (cmdInput && input) {
       cmdInput.value = input;
@@ -279,22 +315,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     const cmd = commands.getActiveCommand();
     if (cmd === 'pomo') {
       setHint(hintMessage,
-        'Space: Start/pause \u2022 R: Reset \u2022 P: Music \u2022 Esc: Back \u2022 Tab/Ctrl+1-5: Switch');
+        'Space: Start/pause \u2022 R: Reset \u2022 P: Music \u2022 Esc: Back \u2022 Tab/Ctrl+1-6: Switch');
     } else if (cmd === 'kill') {
       setHint(hintMessage,
-        'Y: Confirm \u2022 N: Cancel \u2022 Tab/Ctrl+1-5: Switch \u2022 Esc: Back');
+        'Y: Confirm \u2022 N: Cancel \u2022 Tab/Ctrl+1-6: Switch \u2022 Esc: Back');
     } else if (cmd === 'sys') {
       setHint(hintMessage,
-        'Esc: Back \u2022 Tab/Ctrl+1-5: Switch \u2022 Ctrl+/: Command mode \u2022 Ctrl+Shift+,: Settings');
+        'Esc: Back \u2022 Tab/Ctrl+1-6: Switch \u2022 Ctrl+/: Command mode \u2022 Ctrl+Shift+,: Settings');
     } else if (cmd === 'calc') {
       setHint(hintMessage,
-        'Enter: Evaluate \u2022 Tab: Select \u2022 Ctrl+1-5: Switch \u2022 Esc: Back');
+        'Enter: Evaluate \u2022 Tab: Select \u2022 Ctrl+1-6: Switch \u2022 Esc: Back');
     } else if (cmd === 'shell') {
       setHint(hintMessage,
-        'Enter: Run \u2022 Tab: Select \u2022 Ctrl+1-5: Switch \u2022 Esc: Back');
+        'Enter: Run \u2022 Tab: Select \u2022 Ctrl+1-6: Switch \u2022 Esc: Back');
+    } else if (cmd === 'tools') {
+      setHint(hintMessage,
+        'Enter: Copy result \u2022 Up/Down: Select \u2022 Ctrl+1-6: Switch \u2022 Esc: Back');
     } else {
       setHint(hintMessage,
-        'Enter: Run \u2022 Tab: Select \u2022 Ctrl+1-5: Switch \u2022 Esc: Back');
+        'Enter: Run \u2022 Tab: Select \u2022 Ctrl+1-6: Switch \u2022 Esc: Back');
     }
   }
 
@@ -401,6 +440,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Sync running apps strip when config is reloaded from file
   settings.setOnConfigReload((map) => {
+    latestConfigMap = map;
     const on = (map.running_apps_placement || 'right') !== 'none';
     runningApps.setEnabled(on);
     if (on) runningApps.refresh();
