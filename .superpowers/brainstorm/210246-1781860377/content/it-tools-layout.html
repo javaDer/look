@@ -1,0 +1,88 @@
+<h2>it-tools command panel layout</h2>
+<p class="subtitle">Pick the structure that feels right for Look's keyboard-first command panel.</p>
+
+<div class="cards">
+  <div class="card" data-choice="catalog-detail" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">A. Catalog + detail</div>
+        <div class="mockup-body">
+          <div style="display:flex;gap:12px;min-height:220px">
+            <div class="mock-sidebar" style="width:34%">
+              <div class="label">Search tools</div>
+              <div class="placeholder">json formatter</div>
+              <div class="placeholder">base64</div>
+              <div class="placeholder">uuid</div>
+              <div class="placeholder">qr code</div>
+            </div>
+            <div class="mock-content" style="flex:1">
+              <div class="label">Selected tool</div>
+              <input class="mock-input" placeholder="Input" />
+              <div class="placeholder">Result / embedded tool</div>
+              <button class="mock-button">Copy result</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Catalog + Detail</h3>
+      <p>One /tools command opens a searchable tool catalog on the left and the active tool on the right.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="command-per-tool" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">B. Command per tool</div>
+        <div class="mockup-body">
+          <div style="display:flex;gap:12px;min-height:220px">
+            <div class="mock-sidebar" style="width:34%">
+              <div class="placeholder">/json</div>
+              <div class="placeholder">/base64</div>
+              <div class="placeholder">/uuid</div>
+              <div class="placeholder">/random</div>
+            </div>
+            <div class="mock-content" style="flex:1">
+              <div class="label">Direct command</div>
+              <input class="mock-input" placeholder="/json { ... }" />
+              <div class="placeholder">Native result</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Command Per Tool</h3>
+      <p>Each native tool becomes a first-class command; WebView tools are still reached through a catalog.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="recommended-hybrid" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">C. Recommended hybrid</div>
+        <div class="mockup-body">
+          <div style="display:flex;gap:12px;min-height:220px">
+            <div class="mock-sidebar" style="width:34%">
+              <div class="placeholder">/tools</div>
+              <div class="placeholder">/json</div>
+              <div class="placeholder">/base64</div>
+              <div class="placeholder">/random</div>
+            </div>
+            <div class="mock-content" style="flex:1">
+              <div class="label">Unified tool runtime</div>
+              <input class="mock-input" placeholder="Search or type input" />
+              <div class="placeholder">Native panel or embedded it-tools</div>
+              <button class="mock-button">Copy / Open fallback</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Hybrid Catalog + Aliases</h3>
+      <p>/tools covers every it-tools entry; high-frequency native tools also get direct aliases.</p>
+    </div>
+  </div>
+</div>

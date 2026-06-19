@@ -93,3 +93,18 @@ CLAUDE.md
 
 ## Literal ~ directories (cargo bug)
 ~/
+
+# IDE
+.idea/
+
+# Reasonix
+.reasonix/
+reasonix.toml
+
+# Superpowers
+.superpowers/
+
+# Build / temp
+target/
+node_modules/
+dist/
