@@ -10,6 +10,7 @@ dist/
 target/
 **/target/
 result
+.worktrees/
 
 .env
 .env.*
