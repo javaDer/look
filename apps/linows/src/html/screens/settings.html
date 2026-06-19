@@ -392,6 +392,30 @@
           </div>
         </div>
 
+        <div class="settings-divider"></div>
+
+        <!-- it-tools -->
+        <div class="settings-section-header"><span class="settings-section-arrow">&#9654;</span><span>it-tools</span></div>
+        <div class="settings-section">
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Web source</div>
+              <div class="settings-help">Built-in assets are used by default. Self-hosted uses your configured URL.</div>
+            </div>
+            <select id="settings-it-tools-source" class="settings-select">
+              <option value="built-in">Built-in</option>
+              <option value="self-hosted">Self-hosted</option>
+            </select>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-label">Self-hosted URL</div>
+              <div class="settings-help">Example: http://localhost:8080</div>
+            </div>
+            <input id="settings-it-tools-url" class="settings-input" type="text" spellcheck="false" placeholder="http://localhost:8080" />
+          </div>
+        </div>
+
       </div>
 
       <!-- About / update status. Lives inside the scroll area so it sits

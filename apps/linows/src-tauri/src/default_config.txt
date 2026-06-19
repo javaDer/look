@@ -23,3 +23,7 @@ running_apps_placement=right
 
 # UI theme
 ui_theme=
+
+# it-tools
+it_tools_web_source=built-in
+it_tools_self_hosted_url=

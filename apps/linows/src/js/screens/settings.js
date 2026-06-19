@@ -359,6 +359,15 @@ export function init(exitFn) {
     setAutostart(enabled).catch(() => {});
   });
 
+  // it-tools
+  document.getElementById('settings-it-tools-source')?.addEventListener('change', async (e) => {
+    await saveConfig({ it_tools_web_source: e.target.value });
+  });
+
+  document.getElementById('settings-it-tools-url')?.addEventListener('change', async (e) => {
+    await saveConfig({ it_tools_self_hosted_url: e.target.value.trim() });
+  });
+
   // Fresh config
   document.getElementById('settings-fresh-config').addEventListener('click', async () => {
     try {
@@ -823,6 +832,10 @@ async function loadConfig() {
     } catch {
       document.getElementById('settings-launch-login').checked = map.launch_at_login === 'true';
     }
+
+    // it-tools
+    document.getElementById('settings-it-tools-source').value = map.it_tools_web_source || 'built-in';
+    document.getElementById('settings-it-tools-url').value = map.it_tools_self_hosted_url || '';
   } catch (err) {
     console.error('Failed to load config:', err);
   }
