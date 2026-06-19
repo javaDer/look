@@ -798,13 +798,6 @@
   text-overflow: ellipsis;
 }
 
-.cmd-tools-item-meta {
-  color: var(--font-secondary);
-  font-size: calc(var(--font-size) - 2px);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 
 .cmd-tools-badge {
   flex-shrink: 0;
@@ -814,7 +807,10 @@
 }
 
 .cmd-tools-detail {
-  padding: 10px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .cmd-tools-empty,
@@ -830,12 +826,15 @@
 .cmd-tool-native {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
 }
 
 .cmd-tool-native h3 {
   margin: 0;
   font-size: calc(var(--font-size) + 2px);
+  flex-shrink: 0;
 }
 
 .cmd-tool-native textarea,
@@ -852,13 +851,15 @@
 }
 
 .cmd-tool-native textarea {
-  min-height: 120px;
+  min-height: 80px;
   resize: vertical;
   font-family: var(--font-mono);
 }
 
 .cmd-tool-output {
-  min-height: 96px;
+  min-height: 60px;
+  max-height: 200px;
+  overflow: auto;
   white-space: pre-wrap;
   word-break: break-word;
   font-family: var(--font-mono);
@@ -871,6 +872,7 @@
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
 .cmd-tool-actions button {
@@ -884,8 +886,24 @@
 
 .cmd-tools-web-frame {
   width: 100%;
-  min-height: 360px;
+  flex: 1;
+  min-height: 0;
   border: 0;
   border-radius: 8px;
   background: var(--window-fill);
+}
+
+.cmd-tools-item-meta {
+  color: var(--font-secondary);
+  font-size: calc(var(--font-size) - 2px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+
+.cmd-tools-web-hint {
+  color: var(--font-muted);
+  font-size: calc(var(--font-size) - 2px);
+  flex-shrink: 0;
 }

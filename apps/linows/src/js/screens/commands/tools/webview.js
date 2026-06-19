@@ -24,7 +24,7 @@ export function renderWebTool(tool, config = {}) {
       <h3>${tool.name}</h3>
       <div class="cmd-tools-item-meta">${tool.category} · web tool</div>
       <iframe class="cmd-tools-web-frame" src="${url}" title="${tool.name}"></iframe>
-      <div class="cmd-tools-empty">If the embedded tool does not load, configure a self-hosted it-tools URL in Settings.</div>
+      <div class="cmd-tools-web-hint">Not loading? Switch to Self-hosted in Settings.</div>
     </div>
   `;
 }

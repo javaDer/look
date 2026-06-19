@@ -7,7 +7,7 @@
   const lang = params.get('lang');
   const route = params.get('route') || '';
   if (lang) {
-    try { localStorage.setItem('it-tools-locale', lang); } catch(e) {}
+    try { localStorage.setItem('locale', lang); } catch(e) {}
   }
   location.replace('dist/index.html#' + route);
 </script>
