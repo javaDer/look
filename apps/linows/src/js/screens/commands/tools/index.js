@@ -1,4 +1,4 @@
-import { EXECUTION_NATIVE, findToolByAlias, searchTools, toolsCatalog } from './catalog.js';
+import { EXECUTION_NATIVE, findToolByAlias, searchTools, toolsByCategory, toolsCatalog } from './catalog.js';
 import {
   base64Decode,
   base64Encode,
@@ -59,6 +59,14 @@ export function exit() {
 }
 
 export function handleKey(e) {
+  if (e.key === 'Escape') {
+    if (searchInput.value.trim()) {
+      searchInput.value = '';
+      searchInput.dispatchEvent(new Event('input'));
+      return true;
+    }
+    return false;
+  }
   if (e.key === 'ArrowDown') {
     e.preventDefault();
     selectedIndex = Math.min(currentTools.length - 1, selectedIndex + 1);
@@ -88,23 +96,52 @@ export function showFeedback(text, isError = false) {
 
 function renderList() {
   list.innerHTML = '';
-  currentTools.forEach((tool, index) => {
-    const row = document.createElement('div');
-    row.className = `cmd-tools-item ${index === selectedIndex ? 'cmd-tools-item-active' : ''}`;
-    row.innerHTML = `
-      <div class="cmd-tools-item-main">
-        <div class="cmd-tools-item-name">${tool.name}</div>
-        <div class="cmd-tools-item-meta">${tool.category}</div>
-      </div>
-      <span class="cmd-tools-badge">${tool.execution === EXECUTION_NATIVE ? 'native' : 'web'}</span>
-    `;
-    row.addEventListener('click', () => {
-      selectedIndex = index;
-      renderList();
-      renderSelected();
-    });
-    list.appendChild(row);
+  const isSearching = searchInput.value.trim().length > 0;
+
+  if (isSearching) {
+    // Flat search results
+    if (currentTools.length === 0) {
+      list.innerHTML = '<div class="cmd-tools-empty">No matching tools</div>';
+      return;
+    }
+    const count = document.createElement('div');
+    count.className = 'cmd-tools-category';
+    count.textContent = `${currentTools.length} tool${currentTools.length > 1 ? 's' : ''} found`;
+    list.appendChild(count);
+    currentTools.forEach((tool, index) => appendToolRow(tool, index));
+  } else {
+    // Grouped by category
+    let globalIndex = 0;
+    for (const cat of toolsByCategory) {
+      const matched = cat.components.filter((t) => currentTools.includes(t));
+      if (matched.length === 0) continue;
+      const header = document.createElement('div');
+      header.className = 'cmd-tools-category';
+      header.textContent = cat.name;
+      list.appendChild(header);
+      for (const tool of matched) {
+        appendToolRow(tool, globalIndex++);
+      }
+    }
+  }
+}
+
+function appendToolRow(tool, index) {
+  const row = document.createElement('div');
+  row.className = `cmd-tools-item ${index === selectedIndex ? 'cmd-tools-item-active' : ''}`;
+  row.innerHTML = `
+    <div class="cmd-tools-item-main">
+      <div class="cmd-tools-item-name">${tool.name}</div>
+      <div class="cmd-tools-item-meta">${tool.category}</div>
+    </div>
+    <span class="cmd-tools-badge">${tool.execution === EXECUTION_NATIVE ? 'native' : 'web'}</span>
+  `;
+  row.addEventListener('click', () => {
+    selectedIndex = index;
+    renderList();
+    renderSelected();
   });
+  list.appendChild(row);
 }
 
 function setOutput(value, isError = false) {
